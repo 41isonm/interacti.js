@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Ordem de Fabricação
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,9 +9,91 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+      <ion-title size="large">Ordem de Fabricação
+      </ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+
+  <ion-row>
+  <ion-col >        
+    <ion-label>Part Number:</ion-label> 
+    <ion-input label="Part Number" label-placement="floating" fill="outline" placeholder="Part Number"></ion-input>
+
+
+  </ion-col>
+
+  </ion-row>
+  <ion-row>
+    <ion-col >        
+      <ion-label>Numero de Série-SA:</ion-label> 
+      <ion-input label="Numero de Série" label-placement="floating" fill="outline" placeholder="Numero de Série"></ion-input>
+
+
+    </ion-col>
+  
+    </ion-row>
+
+    <ion-row>
+      <ion-col >        
+        <ion-label>Numero of:</ion-label> 
+        <ion-input label="Numero of" label-placement="floating" fill="outline" placeholder="Numero of"></ion-input>
+
+
+      </ion-col>
+    
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-list>
+            <ion-item>
+              <ion-select aria-label="Fruit" interface="action-sheet" placeholder="Select OP">
+                <ion-select-option value="apples">Apples</ion-select-option>
+                <ion-select-option value="oranges">Oranges</ion-select-option>
+                <ion-select-option value="bananas">Bananas</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+
+
+      <ion-row>
+        <ion-col>
+          <ion-list>
+            <ion-item>
+              <ion-select aria-label="Fruit" interface="action-sheet" placeholder="Controler de equipamento">
+                <ion-select-option value="apples">Apples</ion-select-option>
+                <ion-select-option value="oranges">Oranges</ion-select-option>
+                <ion-select-option value="bananas">Bananas</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+
+
+      
+      <ion-row>
+        <ion-col>
+          <ion-list>
+            <ion-item>
+              <ion-select aria-label="Fruit" interface="action-sheet" placeholder="Formula de calculo">
+                <ion-select-option value="apples">Apples</ion-select-option>
+                <ion-select-option value="oranges">Oranges</ion-select-option>
+                <ion-select-option value="bananas">Bananas</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-button expand="block">Cadastrar</ion-button> 
+
+
+        </ion-col>
+      </ion-row>
 </ion-content>

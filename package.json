@@ -27,7 +27,12 @@
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
+    "@recogito/annotorious": "^2.7.13",
+    "hammerjs": "^2.0.8",
+    "interactjs": "^1.10.27",
     "ionicons": "^7.2.1",
+    "primeicons": "^7.0.0",
+    "primeng": "^17.18.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
