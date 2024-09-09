@@ -1,18 +1,18 @@
 import { Component, Input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ModalController } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
-import { IonHeader,IonButtons,ModalController, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { IonHeader,IonInput,IonItem, IonButtons,IonToolbar,IonLabel,IonTitle, IonContent, IonButton } from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-point-modal',
   templateUrl: './point-modal.component.html',
   styleUrls: ['./point-modal.component.scss'],
+  imports:[IonHeader,CommonModule,IonItem,IonButtons,FormsModule,IonLabel,IonInput, IonToolbar, IonTitle, IonContent, IonButton],
   standalone: true,
-  imports: [IonHeader, IonToolbar,IonButtons, IonTitle, IonContent,IonButton,IonInput,IonItem,IonLabel],
-
 })
 export class PointModalComponent {
-  @Input() point?: { id: number; name: string };
+  @Input() point: { id: number; name: string; description: string } = { id: 0, name: '', description: '' };
 
   constructor(private modalController: ModalController) {}
 
@@ -21,12 +21,7 @@ export class PointModalComponent {
   }
 
   save() {
-    // Aqui você pode salvar a alteração (ex: enviar para um backend)
-    console.log('Dados do ponto atualizados:', this.point);
-    this.dismiss();
-  }
-
-  removePoint(id: number, event: MouseEvent | TouchEvent) {
-
+    // Envia os dados do ponto atualizados
+    this.modalController.dismiss(this.point);
   }
 }

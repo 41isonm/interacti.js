@@ -1,45 +1,30 @@
-import { Annotorious } from '@recogito/annotorious';
-
-import '@recogito/annotorious/dist/annotorious.min.css';import { Component, OnInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, ModalController } from '@ionic/angular/standalone';
+import { Component, OnInit } from '@angular/core';
+import { IonHeader,IonImg,IonGrid, IonToolbar, IonTitle,IonRow ,IonCol,IonContent, ModalController } from '@ionic/angular/standalone';
 import interact from 'interactjs';
 import { PointModalComponent } from '../point-modal/point-modal.component';
 import { TableModule } from 'primeng/table';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-tab1',
   templateUrl: './tab1.page.html',
   styleUrls: ['./tab1.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, TableModule],
+  imports: [IonHeader,IonGrid,CommonModule,IonRow,IonImg,IonCol, IonToolbar, NgbTooltipModule, IonTitle, IonContent, TableModule],
 })
-export class Tab1Page implements OnInit {
 
-  private anno: any; 
+
+export class Tab1Page implements OnInit {
+  points: { id: number; name: string; description: string; x: number; y: number }[] = [];
+  pointIdCounter = 0;
+  imageSrc: string | ArrayBuffer | null = null; // Armazena a URL da imagem carregada
 
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {
     this.setupClickListener();
     this.initializeInteractJs();
-    this.initializeAnnotorious(); // Inicializa o Annotorious
-  }
-
-  // Inicializa o Annotorious para anotações em uma imagem específica
-  private initializeAnnotorious() {
-    const imageElement = document.getElementById('annotatable-image') as HTMLImageElement;
-    if (imageElement) {
-      this.anno = Annotorious.init(
-        {
-          image:imageElement
-        }
-      );
- 
-
-      // Exemplo: Adicionar listener para capturar a criação de anotações
-      this.anno.on('createAnnotation', (annotation: any) => {
-        console.log('Anotação criada:', annotation);
-      });
-    }
   }
 
   private setupClickListener() {
@@ -58,9 +43,9 @@ export class Tab1Page implements OnInit {
 
   private createPoint(x: number, y: number) {
     const container = document.getElementById('points-container');
-
+    
     if (!container) return;
-
+    
     const point = document.createElement('div');
     point.className = 'draggable-point';
     point.style.position = 'absolute';
@@ -71,20 +56,62 @@ export class Tab1Page implements OnInit {
     point.style.textAlign = 'center';
     point.style.lineHeight = '50px';
     point.style.borderRadius = '50%';
-    point.style.left = `${x - 25}px`; // Centraliza o ponto
-    point.style.top = `${y - 25}px`; // Centraliza o ponto
+    point.style.left = `${x - 25}px`; 
+    point.style.top = `${y - 25}px`; 
     point.innerText = 'Point';
-
-    // Adiciona evento de click no ponto
+    
+    // Adicione o atributo de tooltip
+    point.setAttribute('data-name', `Nome: ${this.pointIdCounter}`);
+    point.setAttribute('data-description', 'Descrição: Descrição do ponto');
+    
+    // Adiciona evento de clique ao ponto
     point.addEventListener('click', async (event) => {
       event.stopPropagation(); // Previne o evento de clique no container
-      await this.openModal(); // Abre o modal
+      const id = this.pointIdCounter; // Armazena o id para recuperação
+      await this.openModal({ id, name: point.getAttribute('data-name') || '', description: point.getAttribute('data-description') || '', x, y });
     });
-
+    
     container.appendChild(point);
-
+    
     this.initializeInteractJsForPoint(point);
+    
+    this.pointIdCounter++;
   }
+
+  private async openModal(point: { id: number; name: string; description: string; x: number; y: number }) {
+    const modal = await this.modalController.create({
+      component: PointModalComponent,
+      componentProps: { point }
+    });
+  
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        // Atualiza o ponto com os dados do modal
+        const updatedPoint = result.data;
+        console.log('Dados do ponto atualizados:', updatedPoint);
+        // Atualiza a URL da imagem se necessário
+        this.updatePointInContainer(updatedPoint);
+      }
+    });
+  
+    return await modal.present();
+  }
+
+  private updatePointInContainer(updatedPoint: { id: number; name: string; description: string; x: number; y: number }) {
+    const container = document.getElementById('points-container');
+    if (!container) return;
+    
+    const pointElement = Array.from(container.getElementsByClassName('draggable-point'))
+      .find(el => (el as HTMLElement).innerText === 'Point') as HTMLElement; // Cast to HTMLElement
+  
+    if (pointElement) {
+      pointElement.setAttribute('data-name', `Nome: ${updatedPoint.name}`);
+      pointElement.setAttribute('data-description', `Descrição: ${updatedPoint.description}`);
+      pointElement.style.left = `${updatedPoint.x - 25}px`; 
+      pointElement.style.top = `${updatedPoint.y - 25}px`; 
+    }
+  }
+  
 
   private initializeInteractJs() {
     interact('.draggable-point').draggable({
@@ -100,7 +127,7 @@ export class Tab1Page implements OnInit {
           target.setAttribute('data-y', y.toString());
         },
         end(event) {
-          console.log('Ponto movido para:', event.target);
+          console.log('Point dragged to:', event.target);
         }
       }
     });
@@ -119,16 +146,24 @@ export class Tab1Page implements OnInit {
           point.setAttribute('data-y', y.toString());
         },
         end(event) {
-          console.log('Ponto movido para:', event.target);
+          console.log('Point dragged to:', event.target);
         }
       }
     });
   }
 
-  private async openModal() {
-    const modal = await this.modalController.create({
-      component: PointModalComponent
-    });
-    return await modal.present();
+  // Manipula o evento de upload de imagem
+  onImageUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        this.imageSrc = reader.result;
+      };
+      
+      reader.readAsDataURL(file);
+    }
   }
 }
