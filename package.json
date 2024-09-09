@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@annotorious/annotorious": "^3.0.5",
+    "annotorious": "^0.6.4"
+  }
+}
