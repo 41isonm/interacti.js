@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 export class Tab1Page implements OnInit {
   points: { id: number; name: string; description: string; x: number; y: number }[] = [];
   pointIdCounter = 0;
-  imageSrc: string | ArrayBuffer | null = null; // Armazena a URL da imagem carregada
+  imageSrc: string | ArrayBuffer | null = null;
 
   constructor(private modalController: ModalController) {}
 
@@ -60,14 +60,14 @@ export class Tab1Page implements OnInit {
     point.style.top = `${y - 25}px`; 
     point.innerText = 'Point';
     
-    // Adicione o atributo de tooltip
+
     point.setAttribute('data-name', `Nome: ${this.pointIdCounter}`);
     point.setAttribute('data-description', 'Descrição: Descrição do ponto');
-    
-    // Adiciona evento de clique ao ponto
+
+
     point.addEventListener('click', async (event) => {
-      event.stopPropagation(); // Previne o evento de clique no container
-      const id = this.pointIdCounter; // Armazena o id para recuperação
+      event.stopPropagation();
+      const id = this.pointIdCounter; 
       await this.openModal({ id, name: point.getAttribute('data-name') || '', description: point.getAttribute('data-description') || '', x, y });
     });
     
@@ -102,7 +102,7 @@ export class Tab1Page implements OnInit {
     if (!container) return;
     
     const pointElement = Array.from(container.getElementsByClassName('draggable-point'))
-      .find(el => (el as HTMLElement).innerText === 'Point') as HTMLElement; // Cast to HTMLElement
+      .find(el => (el as HTMLElement).innerText === 'Point') as HTMLElement; // Cast para HTMLElement
   
     if (pointElement) {
       pointElement.setAttribute('data-name', `Nome: ${updatedPoint.name}`);

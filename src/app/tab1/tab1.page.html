@@ -1,4 +1,3 @@
-<!-- tab1.page.html -->
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Definição de Pontos</ion-title>
@@ -15,15 +14,13 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <!-- Input para upload de imagem -->
         <input type="file" (change)="onImageUpload($event)" accept="image/*" />
-        <!-- Imagem carregada -->
-        <ion-img *ngIf="imageSrc" [src]="imageSrc" style="width: 100%; height: auto;"></ion-img>
+        <!-- Container de pontos que também contém a imagem -->
+        <div id="points-container" style="position: relative; width: 100%; height: auto; border: 1px solid black;">
+          <!-- Imagem carregada -->
+          <ion-img *ngIf="imageSrc" [src]="imageSrc" style="width: 100%; height: auto; display: block;"></ion-img>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <div id="points-container" style="position: relative; width: 100%; height: 100%; border: 1px solid black; overflow: hidden;">
-    <!-- Pontos serão adicionados aqui -->
-  </div>
 </ion-content>
