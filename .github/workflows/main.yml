@@ -21,6 +21,6 @@ jobs:
           $data = Get-Date
           Write-Host "Data atual: $data"
           
-          # Você pode adicionar outros comandos PowerShell conforme necessário
           # Exemplo: Listar arquivos do repositório
+          Write-Host "Listando os arquivos do repositório:"
           Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
