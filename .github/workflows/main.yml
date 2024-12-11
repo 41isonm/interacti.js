@@ -32,6 +32,24 @@ jobs:
           # Diretório local com os arquivos do repositório
           $sourceDir = "."
 
+          # Função para criar diretório FTP, se não existir
+          function Create-FtpDirectoryIfNeeded($ftpUri, $ftpUser, $ftpPwd) {
+              try {
+                  $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
+                  $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
+                  $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
+                  $ftpRequest.UseBinary = $true
+                  $ftpRequest.KeepAlive = $false
+
+                  $response = $ftpRequest.GetResponse()
+                  $response.Close()
+                  Write-Host "Diretório criado ou já existe: $ftpUri"
+              }
+              catch {
+                  Write-Host "Falha ao criar diretório: $ftpUri. Ignorando..."
+              }
+          }
+
           # Função para enviar arquivos para o FTP
           function Upload-ToFtp($sourceFile, $ftpUri, $ftpUser, $ftpPwd) {
               $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
@@ -49,6 +67,9 @@ jobs:
               
               Write-Host "Arquivo $sourceFile enviado com sucesso!"
           }
+
+          # Criar diretório remoto, se necessário
+          Create-FtpDirectoryIfNeeded "ftp://actidesenvolvimento.com/public_html" $ftpUser $ftpPwd
 
           # Enviar todos os arquivos do repositório para o FTP
           $files = Get-ChildItem -Path $sourceDir -File
