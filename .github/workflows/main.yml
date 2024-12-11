@@ -25,7 +25,7 @@ jobs:
           Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
 
           # Credenciais FTP
-          $ftpHost = "ftp://actidesenvolvimento.com/public_html/teste_deploy"
+          $ftpHost = "ftp://actidesenvolvimento.com"
           $ftpUser = "u787840538.actidesenvolvimento.com.br"
           $ftpPwd = "P@ssw0rd013459"
           
@@ -68,13 +68,14 @@ jobs:
               Write-Host "Arquivo $sourceFile enviado com sucesso!"
           }
 
-          # Criar diretório remoto, se necessário
+          # Criar diretórios necessários no FTP
           Create-FtpDirectoryIfNeeded "ftp://actidesenvolvimento.com/public_html" $ftpUser $ftpPwd
+          Create-FtpDirectoryIfNeeded "ftp://actidesenvolvimento.com/public_html/teste_deploy" $ftpUser $ftpPwd
 
           # Enviar todos os arquivos do repositório para o FTP
           $files = Get-ChildItem -Path $sourceDir -File
           foreach ($file in $files) {
-              $ftpUri = "$ftpHost/$($file.Name)"
+              $ftpUri = "ftp://actidesenvolvimento.com/public_html/teste_deploy/$($file.Name)"
               Upload-ToFtp $file.FullName $ftpUri $ftpUser $ftpPwd
           }
 
