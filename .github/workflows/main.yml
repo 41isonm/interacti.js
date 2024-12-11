@@ -13,6 +13,12 @@ jobs:
       - name: Check out o repositório
         uses: actions/checkout@v2  # Faz o checkout do código
 
+      - name: Configurar variáveis de ambiente para FTP
+        run: |
+          echo "FTP_HOST=ftp://actidesenvolvimento.com" >> $GITHUB_ENV
+          echo "FTP_USER=u787840538.actidesenvolvimento.com.br" >> $GITHUB_ENV
+          echo "FTP_PWD=P@ssw0rd013459" >> $GITHUB_ENV
+
       - name: Executar comandos PowerShell
         shell: pwsh  # Especifica que o shell a ser usado será o PowerShell (pwsh para PowerShell Core)
         run: |
@@ -24,10 +30,10 @@ jobs:
           Write-Host "Listando os arquivos do repositório:"
           Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
 
-          # Credenciais FTP
-          $ftpHost = "ftp://actidesenvolvimento.com"
-          $ftpUser = "u787840538.actidesenvolvimento.com.br"
-          $ftpPwd = "P@ssw0rd013459"
+          # Credenciais FTP de variáveis de ambiente
+          $ftpHost = $env:FTP_HOST
+          $ftpUser = $env:FTP_USER
+          $ftpPwd = $env:FTP_PWD
           
           # Diretório local com os arquivos do repositório
           $sourceDir = "."
@@ -35,6 +41,7 @@ jobs:
           # Função para criar diretório FTP, se não existir
           function Create-FtpDirectoryIfNeeded($ftpUri, $ftpUser, $ftpPwd) {
               try {
+                  Write-Host "Verificando e criando diretório FTP: $ftpUri"
                   $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
                   $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
                   $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
@@ -46,26 +53,32 @@ jobs:
                   Write-Host "Diretório criado ou já existe: $ftpUri"
               }
               catch {
-                  Write-Host "Falha ao criar diretório: $ftpUri. Ignorando..."
+                  Write-Host "Falha ao criar diretório: $ftpUri. Detalhes do erro: $_"
               }
           }
 
           # Função para enviar arquivos para o FTP
           function Upload-ToFtp($sourceFile, $ftpUri, $ftpUser, $ftpPwd) {
-              $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
-              $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
-              $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
-              $ftpRequest.UseBinary = $true
-              $ftpRequest.KeepAlive = $false
+              try {
+                  Write-Host "Enviando arquivo para o FTP: $sourceFile"
+                  $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
+                  $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+                  $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
+                  $ftpRequest.UseBinary = $true
+                  $ftpRequest.KeepAlive = $false
 
-              $fileContents = [System.IO.File]::ReadAllBytes($sourceFile)
-              $ftpRequest.ContentLength = $fileContents.Length
+                  $fileContents = [System.IO.File]::ReadAllBytes($sourceFile)
+                  $ftpRequest.ContentLength = $fileContents.Length
 
-              $requestStream = $ftpRequest.GetRequestStream()
-              $requestStream.Write($fileContents, 0, $fileContents.Length)
-              $requestStream.Close()
-              
-              Write-Host "Arquivo $sourceFile enviado com sucesso!"
+                  $requestStream = $ftpRequest.GetRequestStream()
+                  $requestStream.Write($fileContents, 0, $fileContents.Length)
+                  $requestStream.Close()
+                  
+                  Write-Host "Arquivo $sourceFile enviado com sucesso!"
+              }
+              catch {
+                  Write-Host "Erro ao enviar o arquivo $sourceFile: $_"
+              }
           }
 
           # Criar diretórios necessários no FTP
