@@ -16,11 +16,45 @@ jobs:
       - name: Executar comandos PowerShell
         shell: pwsh  # Especifica que o shell a ser usado será o PowerShell (pwsh para PowerShell Core)
         run: |
-          # Aqui você pode colocar seus comandos PowerShell diretamente
           Write-Host "Executando PowerShell no GitHub Actions!"
           $data = Get-Date
           Write-Host "Data atual: $data"
           
-          # Exemplo: Listar arquivos do repositório
+          # Listar arquivos do repositório
           Write-Host "Listando os arquivos do repositório:"
           Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
+
+          # Credenciais FTP
+          $ftpHost = "ftp://actidesenvolvimento.com/public_html/teste_deploy"
+          $ftpUser = "u787840538.actidesenvolvimento.com.br"
+          $ftpPwd = "P@ssw0rd013459"
+          
+          # Diretório local com os arquivos do repositório
+          $sourceDir = "."
+
+          # Função para enviar arquivos para o FTP
+          function Upload-ToFtp($sourceFile, $ftpUri, $ftpUser, $ftpPwd) {
+              $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
+              $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+              $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
+              $ftpRequest.UseBinary = $true
+              $ftpRequest.KeepAlive = $false
+
+              $fileContents = [System.IO.File]::ReadAllBytes($sourceFile)
+              $ftpRequest.ContentLength = $fileContents.Length
+
+              $requestStream = $ftpRequest.GetRequestStream()
+              $requestStream.Write($fileContents, 0, $fileContents.Length)
+              $requestStream.Close()
+              
+              Write-Host "Arquivo $sourceFile enviado com sucesso!"
+          }
+
+          # Enviar todos os arquivos do repositório para o FTP
+          $files = Get-ChildItem -Path $sourceDir -File
+          foreach ($file in $files) {
+              $ftpUri = "$ftpHost/$($file.Name)"
+              Upload-ToFtp $file.FullName $ftpUri $ftpUser $ftpPwd
+          }
+
+          Write-Host "Arquivos enviados para o servidor FTP com sucesso!"
