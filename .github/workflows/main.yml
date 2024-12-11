@@ -1,0 +1,26 @@
+name: Executar PowerShell no GitHub Actions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run_powershell:
+    runs-on: windows-latest  # Usa o runner do Windows, onde o PowerShell é nativo
+
+    steps:
+      - name: Check out o repositório
+        uses: actions/checkout@v2  # Faz o checkout do código
+
+      - name: Executar comandos PowerShell
+        shell: pwsh  # Especifica que o shell a ser usado será o PowerShell (pwsh para PowerShell Core)
+        run: |
+          # Aqui você pode colocar seus comandos PowerShell diretamente
+          Write-Host "Executando PowerShell no GitHub Actions!"
+          $data = Get-Date
+          Write-Host "Data atual: $data"
+          
+          # Você pode adicionar outros comandos PowerShell conforme necessário
+          # Exemplo: Listar arquivos do repositório
+          Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
