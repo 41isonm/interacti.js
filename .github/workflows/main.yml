@@ -51,7 +51,7 @@ jobs:
           }
 
           # Enviar todos os arquivos do repositório para o FTP na pasta teste_deploy
-          $destinationDir = "/public_html/teste_deploy"  # Definir o diretório de destino no FTP
+          $destinationDir = "/teste_deploy"  # Definir o diretório de destino no FTP
           foreach ($file in Get-ChildItem -Path $sourceDir -File) {
               $ftpUri = "ftp://actidesenvolvimento.com$destinationDir/$($file.Name)"
               Write-Host "Enviando $($file.Name) para $ftpUri"
