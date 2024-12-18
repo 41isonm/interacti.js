@@ -70,10 +70,11 @@ jobs:
 
         
           # Enviar todos os arquivos do repositório para o FTP
-          $files = Get-ChildItem -Path $sourceDir -File
-          foreach ($file in $files) {
-              $ftpUri = "ftp://actidesenvolvimento.com/public_html/teste_deploy/$($file.Name)"
+          $destinationDir = "/public_html/teste_deploy"  # Definir o diretório de destino no FTP
+          foreach ($file in Get-ChildItem -Path $sourceDir -File) {
+              $ftpUri = "ftp://actidesenvolvimento.com$destinationDir/$($file.Name)"
+              Write-Host "Enviando $($file.Name) para $ftpUri"
               Upload-ToFtp $file.FullName $ftpUri $ftpUser $ftpPwd
           }
 
-          Write-Host "Arquivos enviados para o servidor FTP com sucesso!" 
+          Write-Host "Arquivos enviados para o servidor FTP com sucesso!"
