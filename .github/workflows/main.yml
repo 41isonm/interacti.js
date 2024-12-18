@@ -68,10 +68,7 @@ jobs:
               Write-Host "Arquivo $sourceFile enviado com sucesso!"
           }
 
-          # Criar diretórios necessários no FTP
-          Create-FtpDirectoryIfNeeded "ftp://actidesenvolvimento.com/public_html" $ftpUser $ftpPwd
-          Create-FtpDirectoryIfNeeded "ftp://actidesenvolvimento.com/public_html/teste_deploy" $ftpUser $ftpPwd
-
+        
           # Enviar todos os arquivos do repositório para o FTP
           $files = Get-ChildItem -Path $sourceDir -File
           foreach ($file in $files) {
