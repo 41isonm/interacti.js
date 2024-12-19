@@ -62,8 +62,8 @@ jobs:
         env:
           ACTIONS_PAT: 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
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.name "41isonm"
+          git config user.email "santos.alisson207230@gmail.com"
       
           git add procedures
           if git diff --cached --quiet; then
