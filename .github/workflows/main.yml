@@ -68,5 +68,5 @@ jobs:
           git add procedures
           git commit -m "Exportação automática de procedures: $TIMESTAMP"
           
-          # Push do novo branch usando o PAT diretamente na URL
-          git push https://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@github.com/41isonm/interacti.js.git HEAD:export-procedures-$TIMESTAMP
+          # Push do novo branch usando o GitHub Actions token padrão
+          git push https://github.com/41isonm/interacti.js.git HEAD:export-procedures-$TIMESTAMP
