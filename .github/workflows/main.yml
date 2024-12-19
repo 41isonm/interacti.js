@@ -75,7 +75,7 @@ jobs:
             git commit -m "Atualização automática das procedures: $(date)"
             
             # Usa o seu Personal Access Token (PAT) diretamente para fazer o push
-            git push https://41isonm:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/41isonm/interacti.js.git HEAD:main
+            git push https://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@github.com/41isonm/interacti.js.git HEAD:main
           fi
 
 
