@@ -6,18 +6,6 @@ on:
       - main
 
 jobs:
-  run_powershell:
-    runs-on: windows-latest  # Usa o runner do Windows, onde o PowerShell é nativo
-
-    steps:
-      - name: Check out o repositório
-        uses: actions/checkout@v2  # Faz o checkout do código
-
-      - name: Executar comandos PowerShell
-        shell: pwsh  # Especifica que o shell a ser usado será o PowerShell (pwsh para PowerShell Core)
-        run: |
-          Write-Host "Executando PowerShell no GitHub Actions!"
-          # (conteúdo omitido para manter o foco nos ajustes solicitados)
 
   export_mysql_procedures:
     runs-on: ubuntu-latest  # Usa o runner do Linux para executar o script MySQL
@@ -70,3 +58,14 @@ jobs:
           
           # Push do novo branch usando o GitHub Actions token padrão
           git push https://github.com/41isonm/interacti.js.git HEAD:export-procedures-$TIMESTAMP
+
+      - name: Criar Pull Request
+        uses: octokit/request-action@v2
+        with:
+          route: POST /repos/{owner}/{repo}/pulls
+          owner: 41isonm
+          repo: interacti.js
+          title: "Exportação automática de procedures: $TIMESTAMP"
+          head: export-procedures-$TIMESTAMP
+          base: main
+          body: "Este pull request contém a exportação das procedures no MySQL geradas automaticamente."
