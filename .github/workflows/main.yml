@@ -60,16 +60,23 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
+          # Configurações de usuário
           git config user.name "41isonm"
           git config user.email "santos.alisson207230@gmail.com"
-      
+          
+          # Adiciona as alterações
           git add procedures
+      
+          # Verifica se há alterações
           if git diff --cached --quiet; then
             echo "Nenhuma alteração nas procedures."
           else
+            # Comita as alterações
             git commit -m "Atualização automática das procedures: $(date)"
-            # Use o PAT para autenticar o push
-            git push https://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@github.com/41isonm/interacti.js.git HEAD:main
+            
+            # Usa o seu Personal Access Token (PAT) diretamente para fazer o push
+            git push https://41isonm:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/41isonm/interacti.js.git HEAD:main
           fi
+
 
 
