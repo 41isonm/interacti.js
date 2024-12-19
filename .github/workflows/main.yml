@@ -56,22 +56,17 @@ jobs:
 
       - name: Criação de novo branch e commit das alterações
         run: |
+          # Configuração do usuário Git
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
           # Cria um novo branch
-          NEW_BRANCH="export-procedures-$(date +'%Y-%m-%d-%H-%M-%S')"
-          git checkout -b $NEW_BRANCH
+          TIMESTAMP=$(date +"%Y-%m-%d-%H-%M-%S")
+          git checkout -b export-procedures-$TIMESTAMP
           
-          # Adiciona as alterações
+          # Adiciona e comita as alterações
           git add procedures
+          git commit -m "Exportação automática de procedures: $TIMESTAMP"
           
-          # Comita as alterações
-          git commit -m "Exportação automática de procedures: $(date)"
-
-      - name: Criar Pull Request
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Token para autenticação
-        run: |
-          NEW_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          PR_TITLE="Exportação automática de procedures: $(date)"
-          PR_BODY="Este pull request contém a exportação automática das procedures do MySQL."
-          # Cria o pull request
-          gh pr create --base main --head $NEW_BRANCH --title "$PR_TITLE" --body "$PR_BODY" --assignee ${{ github.actor }}
+          # Push do novo branch usando o PAT diretamente na URL
+          git push https://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@github.com/41isonm/interacti.js.git HEAD:export-procedures-$TIMESTAMP
