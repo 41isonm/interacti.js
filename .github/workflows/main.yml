@@ -59,14 +59,19 @@ jobs:
           rm procedure_list.txt
 
       - name: Commit and Push Changes
+        env:
+          ACTIONS_PAT: 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
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-
+      
           git add procedures
           if git diff --cached --quiet; then
             echo "Nenhuma alteração nas procedures."
           else
             git commit -m "Atualização automática das procedures: $(date)"
-            git push
+            # Use o PAT para autenticar o push
+            git push https://x-access-token:${ACTIONS_PAT}@github.com/${{ github.repository }} HEAD:main
           fi
+
+
