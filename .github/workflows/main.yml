@@ -1,4 +1,4 @@
-name: Executar PowerShell e Exportar Procedures
+name: Executar PowerShell no GitHub Actions
 
 on:
   push:
@@ -17,8 +17,43 @@ jobs:
         shell: pwsh  # Especifica que o shell a ser usado será o PowerShell (pwsh para PowerShell Core)
         run: |
           Write-Host "Executando PowerShell no GitHub Actions!"
-          # (conteúdo omitido para manter o foco nos ajustes solicitados)
-
+          $data = Get-Date
+          Write-Host "Data atual: $data"
+          
+          # Listar arquivos do repositório
+          Write-Host "Listando os arquivos do repositório:"
+          Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
+          # Credenciais FTP
+          $ftpHost = "ftp://actidesenvolvimento.com"
+          $ftpUser = "u787840538.actidesenvolvimento.com.br"
+          $ftpPwd = "P@ssw0rd013459"
+          
+          # Diretório local com os arquivos do repositório
+          $sourceDir = "."
+          # Função para enviar arquivos para o FTP
+          function Upload-ToFtp($sourceFile, $ftpUri, $ftpUser, $ftpPwd) {
+              $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
+              $ftpRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+              $ftpRequest.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPwd)
+              $ftpRequest.UseBinary = $true
+              $ftpRequest.KeepAlive = $false
+              $fileContents = [System.IO.File]::ReadAllBytes($sourceFile)
+              $ftpRequest.ContentLength = $fileContents.Length
+              $requestStream = $ftpRequest.GetRequestStream()
+              $requestStream.Write($fileContents, 0, $fileContents.Length)
+              $requestStream.Close()
+              
+              Write-Host "Arquivo $sourceFile enviado com sucesso!"
+          }
+          # Enviar todos os arquivos do repositório para o FTP na pasta teste_deploy
+          $destinationDir = "/teste_deploy"  # Definir o diretório de destino no FTP
+          foreach ($file in Get-ChildItem -Path $sourceDir -File) {
+              $ftpUri = "ftp://actidesenvolvimento.com$destinationDir/$($file.Name)"
+              Write-Host "Enviando $($file.Name) para $ftpUri"
+              Upload-ToFtp $file.FullName $ftpUri $ftpUser $ftpPwd
+          }
+          Write-Host "Arquivos enviados para o servidor FTP com sucesso!"
+  
   export_mysql_procedures:
     runs-on: ubuntu-latest  # Usa o runner do Linux para executar o script MySQL
 
@@ -54,30 +89,21 @@ jobs:
           # Remover arquivo temporário
           rm procedure_list.txt
 
-      - name: Criação de novo branch e commit das alterações
+      - name: Commit and Push Changes
         run: |
           # Configuração do usuário Git
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          
+
           # Cria um novo branch
           TIMESTAMP=$(date +"%Y-%m-%d-%H-%M-%S")
           git checkout -b export-procedures-$TIMESTAMP
           
           # Adiciona e comita as alterações
           git add procedures
-          git commit -m "Exportação automática de procedures: $TIMESTAMP"
+          git commit -m "Exportação automática das procedures: $TIMESTAMP"
           
           # Push do novo branch usando o GitHub Actions token padrão
           git push https://github.com/41isonm/interacti.js.git HEAD:export-procedures-$TIMESTAMP
-
-      - name: Criar Pull Request
-        uses: octokit/request-action@v2
-        with:
-          route: POST /repos/{owner}/{repo}/pulls
-          owner: 41isonm
-          repo: interacti.js
-          title: "Exportação automática de procedures: $TIMESTAMP"
-          head: export-procedures-$TIMESTAMP
-          base: main
-          body: "Este pull request contém a exportação das procedures no MySQL geradas automaticamente."
+          
+          echo "Procedures enviadas para o repositório com sucesso!"
