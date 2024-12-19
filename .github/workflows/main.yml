@@ -58,15 +58,15 @@ jobs:
           # Remover arquivo temporário
           rm procedure_list.txt
 
-      - name: Commit and Push Changes
+      - name: Commit and Push Changes via GitHub Actions Bot
         run: |
           # Configurações de usuário
-          git config user.name "41isonm"
-          git config user.email "santos.alisson207230@gmail.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
           # Adiciona as alterações
           git add procedures
-      
+          
           # Verifica se há alterações
           if git diff --cached --quiet; then
             echo "Nenhuma alteração nas procedures."
@@ -74,8 +74,8 @@ jobs:
             # Comita as alterações
             git commit -m "Atualização automática das procedures: $(date)"
             
-            # Usa o seu Personal Access Token (PAT) diretamente para fazer o push
-            git push https://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@github.com/41isonm/interacti.js.git HEAD:main
+            # Realiza o push das alterações para o repositório
+            git push https://github.com/41isonm/interacti.js.git HEAD:main
           fi
 
 
