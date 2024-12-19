@@ -70,31 +70,56 @@ jobs:
         run: |
           # Instalar cliente MySQL
           sudo apt-get update && sudo apt-get install -y mysql-client
-          # Diretório para salvar as procedures
-          EXPORT_DIR="procedures"
-          mkdir -p $EXPORT_DIR
+          
+          # Diretórios para salvar as procedures
+          EXPORT_DIR_SELECT="procedures/select"
+          EXPORT_DIR_INSERT="procedures/inserts"
+          EXPORT_DIR_UPDATE="procedures/updates"
+          EXPORT_DIR_DELETE="procedures/deletes"
+          
+          mkdir -p $EXPORT_DIR_SELECT
+          mkdir -p $EXPORT_DIR_INSERT
+          mkdir -p $EXPORT_DIR_UPDATE
+          mkdir -p $EXPORT_DIR_DELETE
+          
           # Obter lista de procedures
           mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -D $MYSQL_DATABASE -N -e "
           SELECT ROUTINE_NAME 
           FROM INFORMATION_SCHEMA.ROUTINES 
           WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA = '$MYSQL_DATABASE';
           " > procedure_list.txt
-          # Exportar cada procedure para um arquivo individual
+          
+          # Exportar cada procedure para um arquivo individual, separando por tipo (SELECT, INSERT, UPDATE, DELETE)
           while read procedure; do
             echo "Exportando procedure: $procedure"
+            
+            # Verifica se é uma procedure de SELECT, INSERT, UPDATE ou DELETE e define o diretório
+            if ($procedure -like "sp_select_*") {
+              DIRECTORY=$EXPORT_DIR_SELECT
+            } elseif ($procedure -like "sp_insert_*") {
+              DIRECTORY=$EXPORT_DIR_INSERT
+            } elseif ($procedure -like "sp_update_*") {
+              DIRECTORY=$EXPORT_DIR_UPDATE
+            } elseif ($procedure -like "sp_delete_*") {
+              DIRECTORY=$EXPORT_DIR_DELETE
+            } else {
+              DIRECTORY=$EXPORT_DIR_SELECT  # Caso padrão, se não se encaixar nos padrões anteriores
+            }
+            
             mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -D $MYSQL_DATABASE -N -e "
-            SHOW CREATE PROCEDURE \`$procedure\`\G" > "$EXPORT_DIR/$procedure.sql" 2>/dev/null || \
+            SHOW CREATE PROCEDURE \`$procedure\`\G" > "$DIRECTORY/$procedure.sql" 2>/dev/null || \
             echo "Erro ao exportar procedure: $procedure. Continuando..."
           done < procedure_list.txt
+          
           # Remover arquivo temporário
           rm procedure_list.txt
-
+          
       - name: Commit and Push Changes
         run: |
           # Configuração do usuário Git
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-
+          
           # Cria um novo branch
           TIMESTAMP=$(date +"%Y-%m-%d-%H-%M-%S")
           git checkout -b export-procedures-$TIMESTAMP
