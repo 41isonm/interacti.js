@@ -23,6 +23,7 @@ jobs:
           # Listar arquivos do repositório
           Write-Host "Listando os arquivos do repositório:"
           Get-ChildItem -Path . | ForEach-Object { Write-Host $_.Name }
+
           # Credenciais FTP
           $ftpHost = "ftp://actidesenvolvimento.com"
           $ftpUser = "u787840538.actidesenvolvimento.com.br"
@@ -30,6 +31,7 @@ jobs:
           
           # Diretório local com os arquivos do repositório
           $sourceDir = "."
+          
           # Função para enviar arquivos para o FTP
           function Upload-ToFtp($sourceFile, $ftpUri, $ftpUser, $ftpPwd) {
               $ftpRequest = [System.Net.FtpWebRequest]::Create($ftpUri)
@@ -45,6 +47,7 @@ jobs:
               
               Write-Host "Arquivo $sourceFile enviado com sucesso!"
           }
+
           # Enviar todos os arquivos do repositório para o FTP na pasta teste_deploy
           $destinationDir = "/teste_deploy"  # Definir o diretório de destino no FTP
           foreach ($file in Get-ChildItem -Path $sourceDir -File) {
@@ -53,7 +56,7 @@ jobs:
               Upload-ToFtp $file.FullName $ftpUri $ftpUser $ftpPwd
           }
           Write-Host "Arquivos enviados para o servidor FTP com sucesso!"
-  
+
   export_mysql_procedures:
     runs-on: ubuntu-latest  # Usa o runner do Linux para executar o script MySQL
 
@@ -94,17 +97,17 @@ jobs:
             echo "Exportando procedure: $procedure"
             
             # Verifica se é uma procedure de SELECT, INSERT, UPDATE ou DELETE e define o diretório
-            if ($procedure -like "sp_select_*") {
+            if [[ "$procedure" =~ ^sp_select_ ]]; then
               DIRECTORY=$EXPORT_DIR_SELECT
-            } elseif ($procedure -like "sp_insert_*") {
+            elif [[ "$procedure" =~ ^sp_insert_ ]]; then
               DIRECTORY=$EXPORT_DIR_INSERT
-            } elseif ($procedure -like "sp_update_*") {
+            elif [[ "$procedure" =~ ^sp_update_ ]]; then
               DIRECTORY=$EXPORT_DIR_UPDATE
-            } elseif ($procedure -like "sp_delete_*") {
+            elif [[ "$procedure" =~ ^sp_delete_ ]]; then
               DIRECTORY=$EXPORT_DIR_DELETE
-            } else {
+            else
               DIRECTORY=$EXPORT_DIR_SELECT  # Caso padrão, se não se encaixar nos padrões anteriores
-            }
+            fi
             
             mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -D $MYSQL_DATABASE -N -e "
             SHOW CREATE PROCEDURE \`$procedure\`\G" > "$DIRECTORY/$procedure.sql" 2>/dev/null || \
